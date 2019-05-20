@@ -1,0 +1,46 @@
+version: '2'
+services:
+  genericphp-www:
+    build: 
+      context: .
+      dockerfile: 'docker/Dockerfile'
+    hostname: 'genericphp-www'
+    container_name: 'genericphp-www'
+    entrypoint: '/entrypoint.sh'
+    command: ["httpd-foreground"]
+    env_file:
+      - 'env'
+    ports:
+      - '80:80'
+    volumes:
+      - 'genericphp-scratch-data:/var/www'
+      - './public_html:/var/www/public_html'
+      - './docker/entrypoint.sh:/entrypoint.sh'
+    working_dir: '/var/www'
+    links:
+      - 'genericphp-mariadb:mariadb'
+    networks:
+      - 'app'
+
+  genericphp-mariadb:
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=qwe123'
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'genericphp-mariadb-data:/var/lib/mysql'
+    image: 'mariadb:latest'
+    container_name: 'genericphp-mariadb'
+    hostname: 'genericphp-mariadb'
+    networks:
+      - 'app'
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  genericphp-scratch-data:
+  genericphp-cache-data:
+  genericphp-mariadb-data:
+  genericphp-upload-data:
